@@ -315,6 +315,9 @@ class Issues(Stream):
                                 "GET", "/rest/api/2/search",
                                 params=params):
             # sync comments and changelogs for each issue
+            
+
+            # aqui no sync, ir la dentro e sacar todos os changelogs do respectivo issue, e filtrar apenas os novos changelogs
             sync_sub_streams(page)
             for issue in page:
                 issue['fields'].pop('worklog', None)
@@ -329,7 +332,7 @@ class Issues(Stream):
                 issue['fields'].pop('operations', None)
 
             # Grab last_updated before transform in write_page
-            last_created = utils.strptime_to_utc(page[-1]["fields"]["updated"])
+            last_created = utils.strptime_to_utc(page[-1]["fields"]["created"])
 
             self.write_page(page)
 
