@@ -297,14 +297,14 @@ class Users(Stream):
 class Issues(Stream):
 
     def sync(self):
-        updated_bookmark = [self.tap_stream_id, "updated"]
+        created_bookmark = [self.tap_stream_id, "created"]
         page_num_offset = [self.tap_stream_id, "offset", "page_num"]
 
-        last_updated = Context.update_start_date_bookmark(updated_bookmark)
+        last_created = Context.update_start_date_bookmark(created_bookmark)
         timezone = Context.retrieve_timezone()
-        start_date = last_updated.astimezone(pytz.timezone(timezone)).strftime("%Y-%m-%d %H:%M")
+        start_date = last_created.astimezone(pytz.timezone(timezone)).strftime("%Y-%m-%d %H:%M")
 
-        jql = "updated >= '{}' order by updated asc".format(start_date)
+        jql = "created >= '{}' order by created asc".format(start_date)
         params = {"fields": "*all",
                   "expand": "changelog,transitions",
                   "validateQuery": "strict",
@@ -329,14 +329,14 @@ class Issues(Stream):
                 issue['fields'].pop('operations', None)
 
             # Grab last_updated before transform in write_page
-            last_updated = utils.strptime_to_utc(page[-1]["fields"]["updated"])
+            last_created = utils.strptime_to_utc(page[-1]["fields"]["updated"])
 
             self.write_page(page)
 
             Context.set_bookmark(page_num_offset, pager.next_page_num)
             singer.write_state(Context.state)
         Context.set_bookmark(page_num_offset, None)
-        Context.set_bookmark(updated_bookmark, last_updated)
+        Context.set_bookmark(created_bookmark, last_created)
         singer.write_state(Context.state)
 
 
